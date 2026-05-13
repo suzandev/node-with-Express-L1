@@ -50,7 +50,7 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 //? creating a post route */
-app.post("/", async (req: Request, res: Response) => {
+app.post("/api/users", async (req: Request, res: Response) => {
   const { name, email, password, age } = req.body;
 
   //? inserting data into the users table */
@@ -64,12 +64,69 @@ app.post("/", async (req: Request, res: Response) => {
       [name, email, password, age],
     );
     res.status(201).json({
+      success: true,
       message: "User Created successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
     console.error("Error creating user:", error);
     res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
+
+//? creating a get route to retrieve all users */
+app.get("/api/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(`
+    SELECT * FROM users
+      `);
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: result.rows,
+    });
+  } catch (error: any) {
+    console.error("Error retrieving users:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
+
+//? creating a single route to retrieve a user by id */
+app.get("/api/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+    SELECT * FROM users WHERE id = $1
+      `,
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+        data: {},
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    console.error("Error retrieving user:", error);
+    res.status(500).json({
+      success: false,
       message: error.message,
       error: error,
     });
