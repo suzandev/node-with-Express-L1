@@ -6,8 +6,18 @@ import express, {
 const app: Application = express();
 const port = 3000;
 
+//* Middleware */
+app.use(express.json());
+
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+  res.status(200).json({
+    message: "Hello World!",
+    author: "Suzan Chandra",
+  });
+});
+
+app.post("/", async (req: Request, res: Response) => {
+  console.log(req.body);
 });
 
 app.listen(port, () => {
