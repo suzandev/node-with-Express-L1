@@ -4,6 +4,7 @@ import express, {
   type Response,
 } from "express";
 import { Pool } from "pg";
+import config from "./config/env";
 
 const app: Application = express();
 const port = 3000;
@@ -15,8 +16,7 @@ app.use(express.urlencoded({ extended: true })); // for url
 
 //? creating a pool for postgresql connection */
 const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_tTzU3ab9xBPG@ep-noisy-darkness-aq7t2d6v-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: config.connection_String,
 });
 
 //? initializing the database and creating the users table */
