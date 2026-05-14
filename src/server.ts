@@ -24,7 +24,7 @@ const initDB = async () => {
   try {
     await pool.query(
       `CREATE TABLE IF NOT EXISTS users(
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY, 
         name VARCHAR(20),
         email VARCHAR(20) UNIQUE NOT NULL,
         password VARCHAR(20) NOT NULL,
@@ -128,6 +128,47 @@ app.get("/api/users/:id", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
+      error: error,
+    });
+  }
+});
+
+//? creating a put route to update a user by id */
+app.put("/api/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, email, password, age } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+        UPDATE users SET name = COALESCE($1, name),
+        email = COALESCE($2, email),
+        password = COALESCE($3, password),
+        age = COALESCE($4, age)
+        WHERE id = $5
+        RETURNING *
+      `,
+      [name, email, password, age, id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+        data: {},
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating user",
       error: error,
     });
   }
