@@ -4,6 +4,7 @@ import express, {
   type Response,
 } from "express";
 import { pool } from "./db";
+import { userRoute } from "./modules/user/user.route";
 
 const app: Application = express();
 
@@ -18,34 +19,8 @@ app.get("/", (req: Request, res: Response) => {
     author: "Suzan Chandra",
   });
 });
-//? creating a post route */
-app.post("/api/users", async (req: Request, res: Response) => {
-  const { name, email, password, age } = req.body;
 
-  //? inserting data into the users table */
-  try {
-    const result = await pool.query(
-      `
-    INSERT INTO users (name, email, password, age)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-  `,
-      [name, email, password, age],
-    );
-    res.status(201).json({
-      success: true,
-      message: "User Created successfully",
-      data: result.rows[0],
-    });
-  } catch (error: any) {
-    console.error("Error creating user:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      error: error,
-    });
-  }
-});
+app.use("/api/users", userRoute);
 
 //? creating a get route to retrieve all users */
 app.get("/api/users", async (req: Request, res: Response) => {
