@@ -3,9 +3,6 @@ import { pool } from "../../db";
 import { userService } from "./user.service";
 
 const createUser = async (req: Request, res: Response) => {
-  const { name, email, password, age } = req.body;
-
-  //? inserting data into the users table */
   try {
     const result = await userService.createUserIntoDB(req.body);
     res.status(201).json({
